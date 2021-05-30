@@ -3,12 +3,17 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.Datacenter;
+import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.DatacenterCharacteristics;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Storage;
+import org.cloudbus.cloudsim.UtilizationModelFull;
+import org.cloudbus.cloudsim.UtilizationModelPlanetLabInMemory;
+import org.cloudbus.cloudsim.UtilizationModelStochastic;
 import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.VmSchedulerTimeShared;
@@ -17,7 +22,7 @@ import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 
-public class Ejercicio1 {
+public class Ejercicio2 {
     public static void launch() {
         int numUsuarios = 1;
         Calendar calendar = Calendar.getInstance();
@@ -39,12 +44,6 @@ public class Ejercicio1 {
         List<Host> listaHosts = new ArrayList<Host>();
         listaHosts.add(host);
 
-        // Creación de máquina virtuales
-        int numberOfVMs = 4;
-        for (int i = 0; i < numberOfVMs; i++) {
-            host.vmCreate(new Vm(i, 0, 250, 1, 1024, 100, 4096, "Xen", new CloudletSchedulerSpaceShared()));
-        }
-
         String arquitectura = "x86";
         String so = "Linux";
         String vmm = "Xen";
@@ -65,7 +64,38 @@ public class Ejercicio1 {
             e.printStackTrace();
         }
 
+        // Creación del broker
+        try {
+            DatacenterBroker broker = new DatacenterBroker("Broker_Ejercicio2");
+            int uid = broker.getId();
+
+            // Creación de máquina virtuales
+            int numberOfVMs = 2;
+            List<Vm> vms = new ArrayList<Vm>();
+            for (int i = 0; i < numberOfVMs; i++) {
+                Vm vm = new Vm(i, uid, 200, 2, 1024, 100, 6144, "Xen", new CloudletSchedulerSpaceShared());
+                vms.add(vm);
+                host.vmCreate(vm);
+            }
+
+            broker.submitVmList(vms);
+
+            // Creación de tareas
+            int numberOfTasks = 12;
+            List<Cloudlet> cloudlets = new ArrayList<Cloudlet>();
+            for (int i = 0; i < numberOfTasks; i++) {
+                Cloudlet cl = new Cloudlet(i, 10000, 1, 2048, 2560, new UtilizationModelStochastic(),
+                        new UtilizationModelStochastic(), new UtilizationModelStochastic());
+                cl.setUserId(uid);
+                cloudlets.add(cl);
+            }
+
+            broker.submitCloudletList(cloudlets);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         CloudSim.startSimulation();
     }
-
 }
