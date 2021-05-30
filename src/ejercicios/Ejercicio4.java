@@ -1,16 +1,16 @@
+package ejercicios;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.DatacenterCharacteristics;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Storage;
-import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.core.CloudSim;
@@ -18,7 +18,10 @@ import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 
-public class Ejercicio5 {
+import builder.BrokerBuilder;
+import builder.VmBuilder;
+
+public class Ejercicio4 {
     public static void launch() {
         int numUsuarios = 1;
         Calendar calendar = Calendar.getInstance();
@@ -58,32 +61,21 @@ public class Ejercicio5 {
         double costePorBw = 0.002;
         DatacenterCharacteristics caracteristicas = new DatacenterCharacteristics(arquitectura, so, vmm, listaHosts,
                 zonaHoraria, costePorSeg, costePorMem, costePorAlm, costePorBw);
-        Datacenter centroDeDatos = null;
         try {
-            centroDeDatos = new Datacenter(nombre, caracteristicas, new VmAllocationPolicyRandom(listaHosts),
-                    new LinkedList<Storage>(), 0);
+            new Datacenter(nombre, caracteristicas, new VmAllocationPolicySimple(listaHosts), new LinkedList<Storage>(),
+                    0);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        DatacenterBroker broker = null;
-        try {
-            broker = new DatacenterBroker("Broker_Ejercicio5");
-            int uid = broker.getId();
+        // Creación de las VMs
+        VmBuilder vmBuilder = new VmBuilder();
+        vmBuilder.defineVmType("VM_A", 1, 400, 2048, 40000, 1000);
 
-            // Creación de máquina virtuales
-            int numberOfVMs = 20;
-            List<Vm> vms = new ArrayList<Vm>();
-            for (int i = 0; i < numberOfVMs; i++) {
-                Vm vm = new Vm(i, uid, 400, 1, 2048, 1000, 40000, "Xen", new CloudletSchedulerSpaceShared());
-                vms.add(vm);
-            }
-
-            broker.submitVmList(vms);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        // Creación del broker
+        BrokerBuilder brokerBuilder = new BrokerBuilder();
+        DatacenterBroker broker = brokerBuilder.buildBroker("Broker_Ejercicio4");
+        brokerBuilder.assignVms(broker, 6, vmBuilder, "VM_A");
 
         CloudSim.startSimulation();
     }

@@ -1,3 +1,5 @@
+package ejercicios;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -10,6 +12,10 @@ import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.core.CloudSim;
+
+import builder.BrokerBuilder;
+import builder.HostBuilder;
+import builder.VmBuilder;
 
 public class Ejercicio6 {
     public static void launch() {
@@ -44,7 +50,7 @@ public class Ejercicio6 {
         DatacenterCharacteristics caracteristicas = new DatacenterCharacteristics(arquitectura, so, vmm, listaHosts,
                 zonaHoraria, costePorSeg, costePorMem, costePorAlm, costePorBw);
         try {
-            new Datacenter(nombre, caracteristicas, new VmAllocationPolicyRandom(listaHosts), new LinkedList<Storage>(),
+            new Datacenter(nombre, caracteristicas, new VmAllocationPolicySimple(listaHosts), new LinkedList<Storage>(),
                     0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,14 +64,14 @@ public class Ejercicio6 {
         // Creación del broker
         BrokerBuilder brokerBuilder = new BrokerBuilder();
 
-        DatacenterBroker broker_2 = brokerBuilder.buildBroker("Broker_Ejercicio6_User_2");
-        brokerBuilder.assignVms(broker_2, 24, vmBuilder, "C");
+        DatacenterBroker broker_0 = brokerBuilder.buildBroker("Broker_Ejercicio6_User_0");
+        brokerBuilder.assignVms(broker_0, 8, vmBuilder, "A");
 
         DatacenterBroker broker_1 = brokerBuilder.buildBroker("Broker_Ejercicio6_User_1");
         brokerBuilder.assignVms(broker_1, 16, vmBuilder, "B");
 
-        DatacenterBroker broker_0 = brokerBuilder.buildBroker("Broker_Ejercicio6_User_0");
-        brokerBuilder.assignVms(broker_0, 8, vmBuilder, "A");
+        DatacenterBroker broker_2 = brokerBuilder.buildBroker("Broker_Ejercicio6_User_2");
+        brokerBuilder.assignVms(broker_2, 24, vmBuilder, "C");
 
         CloudSim.startSimulation();
     }

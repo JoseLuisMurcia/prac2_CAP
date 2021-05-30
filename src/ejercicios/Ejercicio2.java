@@ -1,15 +1,16 @@
+package ejercicios;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.cloudbus.cloudsim.CloudletSchedulerSpaceShared;
 import org.cloudbus.cloudsim.Datacenter;
+import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.DatacenterCharacteristics;
 import org.cloudbus.cloudsim.Host;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Storage;
-import org.cloudbus.cloudsim.Vm;
 import org.cloudbus.cloudsim.VmAllocationPolicySimple;
 import org.cloudbus.cloudsim.VmSchedulerTimeShared;
 import org.cloudbus.cloudsim.core.CloudSim;
@@ -17,7 +18,12 @@ import org.cloudbus.cloudsim.provisioners.BwProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.PeProvisionerSimple;
 import org.cloudbus.cloudsim.provisioners.RamProvisionerSimple;
 
-public class Ejercicio1 {
+import builder.BrokerBuilder;
+import builder.CloudletBuilder;
+import builder.VmBuilder;
+import logger.Logger;
+
+public class Ejercicio2 {
     public static void launch() {
         int numUsuarios = 1;
         Calendar calendar = Calendar.getInstance();
@@ -39,12 +45,6 @@ public class Ejercicio1 {
         List<Host> listaHosts = new ArrayList<Host>();
         listaHosts.add(host);
 
-        // Creación de máquina virtuales
-        int numberOfVMs = 4;
-        for (int i = 0; i < numberOfVMs; i++) {
-            host.vmCreate(new Vm(i, 0, 250, 1, 1024, 100, 4096, "Xen", new CloudletSchedulerSpaceShared()));
-        }
-
         String arquitectura = "x86";
         String so = "Linux";
         String vmm = "Xen";
@@ -57,15 +57,29 @@ public class Ejercicio1 {
 
         DatacenterCharacteristics caracteristicas = new DatacenterCharacteristics(arquitectura, so, vmm, listaHosts,
                 zonaHoraria, costePorSeg, costePorMem, costePorAlm, costePorBw);
-        Datacenter centroDeDatos;
         try {
-            centroDeDatos = new Datacenter(nombre, caracteristicas, new VmAllocationPolicySimple(listaHosts),
-                    new LinkedList<Storage>(), 0);
+            new Datacenter(nombre, caracteristicas, new VmAllocationPolicySimple(listaHosts), new LinkedList<Storage>(),
+                    0);
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        CloudSim.startSimulation();
-    }
+        // Creación de las VMs
+        VmBuilder vmBuilder = new VmBuilder();
+        vmBuilder.defineVmType("VM_A", 2, 200, 1024, 6000, 100);
 
+        // Creación de los Cloudlets
+        CloudletBuilder cloudletBuilder = new CloudletBuilder();
+        cloudletBuilder.defineCloudletType("CL_A", 10000, 1, 2048, 2560);
+
+        // Creación del broker
+        BrokerBuilder brokerBuilder = new BrokerBuilder();
+        DatacenterBroker broker = brokerBuilder.buildBroker("Broker_Ejercicio2");
+        brokerBuilder.assignVms(broker, 2, vmBuilder, "VM_A");
+        brokerBuilder.assignCloudlets(broker, 12, cloudletBuilder, "CL_A");
+
+        CloudSim.startSimulation();
+
+        Logger.printCloudletList(broker.getCloudletReceivedList());
+    }
 }

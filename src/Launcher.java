@@ -1,3 +1,10 @@
+import ejercicios.Ejercicio1;
+import ejercicios.Ejercicio2;
+import ejercicios.Ejercicio3;
+import ejercicios.Ejercicio4;
+import ejercicios.Ejercicio5;
+import ejercicios.Ejercicio6;
+
 public class Launcher {
     static int exercise = 6;
 

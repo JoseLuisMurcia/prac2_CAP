@@ -1,6 +1,9 @@
+package builder;
+
 import java.util.ArrayList;
 import java.util.List;
 
+import org.cloudbus.cloudsim.Cloudlet;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.Vm;
 
@@ -18,11 +21,20 @@ public class BrokerBuilder {
     }
 
     public void assignVms(DatacenterBroker broker, int nVms, VmBuilder builder, String type) {
-        int numberOfVMs = nVms;
         List<Vm> vms = new ArrayList<Vm>();
-        for (int i = 0; i < numberOfVMs; i++) {
+        for (int i = 0; i < nVms; i++) {
             vms.add(builder.buildVm((type), broker.getId()));
         }
         broker.submitVmList(vms);
+    }
+
+    public void assignCloudlets(DatacenterBroker broker, int nCloudlets, CloudletBuilder builder, String type) {
+        List<Cloudlet> cloudlets = new ArrayList<Cloudlet>();
+        for (int i = 0; i < nCloudlets; i++) {
+            Cloudlet cl = builder.buildCloudlet(type);
+            cl.setUserId(broker.getId());
+            cloudlets.add(cl);
+        }
+        broker.submitCloudletList(cloudlets);
     }
 }
