@@ -1,3 +1,4 @@
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedList;
@@ -9,6 +10,7 @@ import org.cloudbus.cloudsim.Datacenter;
 import org.cloudbus.cloudsim.DatacenterBroker;
 import org.cloudbus.cloudsim.DatacenterCharacteristics;
 import org.cloudbus.cloudsim.Host;
+import org.cloudbus.cloudsim.Log;
 import org.cloudbus.cloudsim.Pe;
 import org.cloudbus.cloudsim.Storage;
 import org.cloudbus.cloudsim.UtilizationModelFull;
@@ -65,8 +67,9 @@ public class Ejercicio2 {
         }
 
         // Creación del broker
+        DatacenterBroker broker = null;
         try {
-            DatacenterBroker broker = new DatacenterBroker("Broker_Ejercicio2");
+            broker = new DatacenterBroker("Broker_Ejercicio2");
             int uid = broker.getId();
 
             // Creación de máquina virtuales
@@ -75,7 +78,6 @@ public class Ejercicio2 {
             for (int i = 0; i < numberOfVMs; i++) {
                 Vm vm = new Vm(i, uid, 200, 2, 1024, 100, 6144, "Xen", new CloudletSchedulerSpaceShared());
                 vms.add(vm);
-                host.vmCreate(vm);
             }
 
             broker.submitVmList(vms);
@@ -97,5 +99,33 @@ public class Ejercicio2 {
         }
 
         CloudSim.startSimulation();
+
+        printCloudletList(broker.getCloudletReceivedList());
+    }
+
+    private static void printCloudletList(List<Cloudlet> list) {
+        int size = list.size();
+        Cloudlet cloudlet;
+
+        String indent = "    ";
+        Log.printLine();
+        Log.printLine("========== OUTPUT ==========");
+        Log.printLine("Cloudlet ID" + indent + "STATUS" + indent + "Data center ID" + indent + "VM ID" + indent + "Time"
+                + indent + "Start Time" + indent + "Finish Time");
+
+        DecimalFormat dft = new DecimalFormat("###.##");
+        for (int i = 0; i < size; i++) {
+            cloudlet = list.get(i);
+            Log.print(indent + cloudlet.getCloudletId() + indent + indent);
+
+            if (cloudlet.getCloudletStatus() == Cloudlet.SUCCESS) {
+                Log.print("SUCCESS");
+
+                Log.printLine(indent + indent + cloudlet.getResourceId() + indent + indent + indent + cloudlet.getVmId()
+                        + indent + indent + dft.format(cloudlet.getActualCPUTime()) + indent + indent
+                        + dft.format(cloudlet.getExecStartTime()) + indent + indent
+                        + dft.format(cloudlet.getFinishTime()));
+            }
+        }
     }
 }
