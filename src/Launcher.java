@@ -1,5 +1,5 @@
 public class Launcher {
-    static int exercise = 3;
+    static int exercise = 4;
 
     public static void main(String[] args) {
         switch (exercise) {
@@ -11,6 +11,9 @@ public class Launcher {
                 break;
             case 3:
                 Ejercicio3.launch();
+                break;
+            case 4:
+                Ejercicio4.launch();
                 break;
         }
     }
