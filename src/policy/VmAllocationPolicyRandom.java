@@ -41,6 +41,11 @@ public class VmAllocationPolicyRandom extends VmAllocationPolicySimple {
 
             } while (!result && triedHosts.size() < getHostList().size());
         }
+
+        if (!result) {
+            PolicyFailTester.currentFailCount++; // Usado para tests
+        }
+
         return result;
     }
 }
